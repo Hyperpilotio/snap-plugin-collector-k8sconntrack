@@ -1,0 +1,66 @@
+hash: 69f5370df21e7cd1371db34c55e6ecc330f6ad0b6d5f5c82e7b1061823639be7
+updated: 2017-11-07T02:19:10.002151741+08:00
+imports:
+- name: github.com/asaskevich/govalidator
+  version: 9699ab6b38bee2e02cd3fe8b99ecf67665395c96
+- name: github.com/intelsdi-x/snap
+  version: 79e1dd457d77c985491c2f4746cbc425fb3dc2dd
+  subpackages:
+  - control/plugin
+  - control/plugin/cpolicy
+  - control/plugin/encoding
+  - control/plugin/encrypter
+  - core
+  - core/cdata
+  - core/ctypes
+  - core/serror
+  - pkg/ctree
+  - pkg/fileutils
+  - pkg/schedule
+  - pkg/stringutils
+  - scheduler/wmap
+- name: github.com/intelsdi-x/snap-plugin-utilities
+  version: 53c6d26990688f3f277511f5501518167f4cb798
+  subpackages:
+  - config
+- name: github.com/rifflock/lfshook
+  version: 3bcf86f879c771238f8a67832a1af71308801a47
+- name: github.com/robfig/cron
+  version: 32d9c273155a0506d27cf73dd1246e86a470997e
+- name: github.com/sirupsen/logrus
+  version: be52937128b38f1d99787bb476c789e2af1147f1
+- name: golang.org/x/net
+  version: 01c190206fbdffa42f334f4b2bf2220f50e64920
+  subpackages:
+  - publicsuffix
+- name: golang.org/x/sys
+  version: d4266bc12aae0b4128952c889b769442fce5d2f1
+  subpackages:
+  - unix
+- name: gopkg.in/resty.v1
+  version: 9ac9c42358f7c3c69ac9f8610e8790d7c338e85d
+- name: gopkg.in/yaml.v2
+  version: c1cd2254a6dd314c9d73c338c12688c9325d85c6
+testImports:
+- name: github.com/gopherjs/gopherjs
+  version: 444abdf920945de5d4a977b572bcc6c674d1e4eb
+  subpackages:
+  - js
+- name: github.com/jtolds/gls
+  version: 77f18212c9c7edc9bd6a33d383a7b545ce62f064
+- name: github.com/smartystreets/assertions
+  version: 0b37b35ec7434b77e77a4bb29b79677cced992ea
+  subpackages:
+  - internal/go-render/render
+  - internal/oglematchers
+- name: github.com/smartystreets/goconvey
+  version: e5b2b7c9111590d019a696c7800593f666e1a7f4
+  subpackages:
+  - convey
+  - convey/gotest
+  - convey/reporting
+- name: github.com/stretchr/testify
+  version: 2aa2c176b9dab406a6970f6a55f513e8a8c8b18f
+  subpackages:
+  - mock
+  - suite
