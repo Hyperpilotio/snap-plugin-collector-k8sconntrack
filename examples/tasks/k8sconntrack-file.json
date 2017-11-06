@@ -1,0 +1,29 @@
+{
+    "version": 1,
+    "schedule": {
+        "type": "simple",
+        "interval": "5s"
+    },
+    "workflow": {
+        "collect": {
+            "metrics": {
+                "/hyperpilot/k8sconntrack/flows": {},
+                "/hyperpilot/k8sconntrack/iptables": {}
+            },
+            "config": {
+                "/hyperpilot/k8sconntrack": {
+                    "host": "localhost:2222"
+                }
+            },
+            "process": null,
+            "publish": [
+                {
+                    "plugin_name": "file",
+                    "config": {
+                        "file": "/tmp/published_k8sconntrack.log"
+                    }
+                }
+            ]
+        }
+    }
+}
