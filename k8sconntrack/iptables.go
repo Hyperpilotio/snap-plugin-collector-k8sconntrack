@@ -39,14 +39,6 @@ type Table struct {
     Chains []Chain    `json:"Chains"`
 }
 
-type Conntrack struct {
-    Host string
-}
-
-func New(host string) *Conntrack {
-    return &Conntrack{Host: host}
-}
-
 func (con *Conntrack) GetIptables(tables []string) ([]Table, error) {
     var endpoint string
     if len(tables) < 1 {
