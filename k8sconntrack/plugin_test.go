@@ -22,6 +22,9 @@ package k8sconntrack
 import (
 	"testing"
 
+	"github.com/intelsdi-x/snap/core/cdata"
+	"github.com/intelsdi-x/snap/core/ctypes"
+
 	. "github.com/smartystreets/goconvey/convey"
 	// "github.com/stretchr/testify/mock"
 	// "github.com/stretchr/testify/suite"
@@ -32,9 +35,14 @@ import (
 func TestGetMetricTypes(t *testing.T) {
 	Convey("Given ct plugin is initialized", t, func() {
 		ct := NewCtCollector()
+		cfg := func() plugin.ConfigType {
+			node := cdata.NewNode()
+			node.AddItem("host", ctypes.ConfigValueStr{Value: "localhost:3000"})
+			return plugin.ConfigType{ConfigDataNode: node}
+		}()
 
 		Convey("When values for given metrics are requested", func() {
-			mts, err := ct.GetMetricTypes(plugin.ConfigType{})
+			mts, err := ct.GetMetricTypes(cfg)
 
 			Convey("Then no error should be reported", func() {
 				So(err, ShouldBeNil)
