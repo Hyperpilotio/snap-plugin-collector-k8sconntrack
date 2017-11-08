@@ -21,33 +21,35 @@ func init() {
 }
 
 func NewLogger() *Logger {
-//func NewLogger(cfg config.Provider) *Logger {
+	//func NewLogger(cfg config.Provider) *Logger {
 	l := logrus.New()
 
-    //if cfg.GetBool("JSONLog") {
+	//if cfg.GetBool("JSONLog") {
 	//	l.Formatter = &logrus.JSONFormatter{}
+
 	//}
 
 	l.Out = os.Stderr
 	//if cfg.GetBool("LogFile") {
-		l.Hooks.Add(lfshook.NewHook(lfshook.PathMap{
-			logrus.WarnLevel:  filepath.Join("/tmp", "k8sconntrack-warn.log"),
-			logrus.InfoLevel:  filepath.Join("/tmp", "k8sconntrack-info.log"),
-			logrus.ErrorLevel: filepath.Join("/tmp", "k8sconntrack-error.log"),
-			//logrus.FatalLevel: filepath.Join(cfg.GetString("LogFolder"), "k8sconntrack-fatal.log"),
-		}))
+	l.Hooks.Add(lfshook.NewHook(lfshook.PathMap{
+		logrus.WarnLevel:  filepath.Join("/tmp", "k8sconntrack-warn.log"),
+		logrus.InfoLevel:  filepath.Join("/tmp", "k8sconntrack-info.log"),
+		logrus.ErrorLevel: filepath.Join("/tmp", "k8sconntrack-error.log"),
+		//logrus.FatalLevel: filepath.Join(cfg.GetString("LogFolder"), "k8sconntrack-fatal.log"),
+	}))
 	//}
 
-	switch cfg.GetString("LogLevel") {
-	case "debug":
-		l.Level = logrus.DebugLevel
-	case "warning":
-		l.Level = logrus.WarnLevel
-	case "info":
-		l.Level = logrus.InfoLevel
-	default:
-		l.Level = logrus.DebugLevel
-	}
+	// FIXME should read config and adjust the log level
+	// switch cfg.GetString("LogLevel") {
+	// case "debug":
+	l.Level = logrus.DebugLevel
+	// case "warning":
+	// 	l.Level = logrus.WarnLevel
+	// case "info":
+	// 	l.Level = logrus.InfoLevel
+	// default:
+	// 	l.Level = logrus.DebugLevel
+	// }
 
 	return l
 }
