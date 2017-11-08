@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	log "github.com/sirupsen/logrus"
+	log "github.com/intelsdi-x/snap-plugin-utilities/logger"
 	"gopkg.in/resty.v1"
 	//"github.com/Hyperpilotio/snap-plugin-collector-k8sconntrack/pkg/logger"
 )

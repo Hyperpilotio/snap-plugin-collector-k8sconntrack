@@ -25,7 +25,7 @@ import (
 	"fmt"
 	"sync"
 
-	log "github.com/sirupsen/logrus"
+	log "github.com/intelsdi-x/snap-plugin-utilities/logger"
 
 	"github.com/intelsdi-x/snap-plugin-lib-go/v1/plugin"
 	"github.com/intelsdi-x/snap/control/plugin/cpolicy"
@@ -85,7 +85,7 @@ func (c *ctCollector) GetMetricTypes(cfg plugin.Config) ([]plugin.Metric, error)
 			}
 		}
 	} else {
-		c.logger.Errorf("Unable to retrieve chains of iptables from k8sconntrack: %s", err.Error())
+		log.LogError(fmt.Sprintf("Unable to retrieve chains of iptables from k8sconntrack: %s", err.Error()))
 	}
 
 	for _, kind := range conntrackMetrics {
@@ -129,18 +129,15 @@ func (c *ctCollector) init(cfg plugin.Config) error {
 
 // NewDfCollector creates new instance of plugin and returns pointer to initialized object.
 func NewCtCollector() *ctCollector {
-	logger := log.New()
 	imutex := new(sync.Mutex)
 	// FIXME should not specify address
 	return &ctCollector{
-		logger: logger,
-		mutex:  imutex,
+		mutex: imutex,
 	}
 }
 
 type ctCollector struct {
 	mutex       *sync.Mutex
-	logger      *log.Logger
 	conntrack   *Conntrack
 	initialized bool
 }

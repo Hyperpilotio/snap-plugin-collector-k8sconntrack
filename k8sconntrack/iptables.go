@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/Hyperpilotio/snap-plugin-collector-k8sconntrack/pkg/log"
+	log "github.com/intelsdi-x/snap-plugin-utilities/logger"
 	"gopkg.in/resty.v1"
 )
 
@@ -52,9 +52,8 @@ func (con *Conntrack) GetIptables(tables []string) ([]Table, error) {
 		con.Host, strings.Join(tables, "&Table="))
 	resp, err := resty.R().Get(endpoint)
 	if err != nil {
-		msg := fmt.Errorf("Unable to get iptables stats from k8sconntrack: %s", err.Error())
-		log.WithFields(log.Fields{"Host": con.Host}).
-			Error(msg.Error())
+		msg := fmt.Errorf("Unable to get iptables stats from k8sconntrack (host: %s): %s", con.Host, err.Error())
+		log.LogError(msg.Error())
 		return nil, msg
 
 	}
@@ -62,7 +61,7 @@ func (con *Conntrack) GetIptables(tables []string) ([]Table, error) {
 	var t []Table
 	err = json.Unmarshal(resp.Body(), &t)
 	if err != nil {
-		log.Errorf("Unable to parse body of response: err: %s body: %s", err.Error(), resp.String())
+		log.LogError(fmt.Sprintf("Unable to parse body of response: err: %s body: %s", err.Error(), resp.String()))
 		return nil, err
 	}
 
@@ -72,17 +71,15 @@ func (con *Conntrack) GetIptables(tables []string) ([]Table, error) {
 func (con *Conntrack) ListChains() (*map[string][]string, error) {
 	resp, err := resty.R().Get(fmt.Sprintf("http://%s/iptables/chains", con.Host))
 	if err != nil {
-		msg := fmt.Errorf("Unable to get iptables stats from k8sconntrack: %s", err.Error())
-		log.WithFields(log.Fields{"Host": con.Host}).
-			Error(msg.Error())
+		msg := fmt.Errorf("Unable to get iptables stats from k8sconntrack (host: %s): %s", con.Host, err.Error())
+		log.LogError(msg.Error())
 		return nil, msg
-
 	}
 
 	var chains map[string][]string
 	err = json.Unmarshal(resp.Body(), &chains)
 	if err != nil {
-		log.Errorf("Unable to parse body of response: err: %s body: %s", err.Error(), resp.String())
+		log.LogError(fmt.Sprintf("Unable to parse body of response: err: %s body: %s", err.Error(), resp.String()))
 		return nil, err
 	}
 

@@ -4,6 +4,7 @@ import:
 - package: github.com/intelsdi-x/snap-plugin-utilities
   subpackages:
   - config
+  - logger
 - package: github.com/intelsdi-x/snap
   subpackages:
   - control/plugin
