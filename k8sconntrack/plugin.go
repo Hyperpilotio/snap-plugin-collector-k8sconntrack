@@ -65,18 +65,24 @@ var (
 // It returns error in case retrieval was not successful
 func (c *ctCollector) GetMetricTypes(cfg plugin.ConfigType) ([]plugin.MetricType, error) {
 	mts := []plugin.MetricType{}
-	for table, chains := range iptablesMetrics {
-		for _, chain := range chains {
-			mts = append(mts, plugin.MetricType{
-				Namespace_: core.NewNamespace(iptablesNamespacePrefix...).
-					AddStaticElement(table).
-					AddDynamicElement(chain, "name of chain").
-					AddStaticElement("stats"),
-				Description_: fmt.Sprintf("dynamic iptables metric: %s table %s chain", table, chain),
-				Version_:     Version,
-			})
+	iptablesMetrics, err := c.conntrack.ListChains()
+	if err == nil {
+		for table, chains := range *iptablesMetrics {
+			for _, chain := range chains {
+				mts = append(mts, plugin.MetricType{
+					Namespace_: core.NewNamespace(iptablesNamespacePrefix...).
+						AddStaticElement(table).
+						AddDynamicElement(chain, "name of chain").
+						AddStaticElement("stats"),
+					Description_: fmt.Sprintf("dynamic iptables metric: %s table %s chain", table, chain),
+					Version_:     Version,
+				})
+			}
 		}
+	} else {
+		c.logger.Errorf("Unable to retrieve chains of iptables from k8sconntrack: %s", err.Error())
 	}
+
 	for _, kind := range conntrackMetrics {
 		mts = append(mts, plugin.MetricType{
 			Namespace_: core.NewNamespace(conntrackNamespacePrefix...).
@@ -104,9 +110,12 @@ func (c *ctCollector) GetConfigPolicy() (*cpolicy.ConfigPolicy, error) {
 func NewCtCollector() *ctCollector {
 	logger := log.New()
 	imutex := new(sync.Mutex)
+	// FIXME should not specify address
+	conntrack := NewConntrack("localhost:3000")
 	return &ctCollector{
-		logger: logger,
-		mutex:  imutex,
+		logger:    logger,
+		mutex:     imutex,
+		conntrack: conntrack,
 	}
 }
 
@@ -124,6 +133,7 @@ func Meta() *plugin.PluginMeta {
 }
 
 type ctCollector struct {
-	mutex  *sync.Mutex
-	logger *log.Logger
+	mutex     *sync.Mutex
+	logger    *log.Logger
+	conntrack *Conntrack
 }
