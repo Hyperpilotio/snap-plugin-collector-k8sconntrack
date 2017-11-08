@@ -6,12 +6,11 @@ import (
 	"fmt"
 	"strings"
 
-    "gopkg.in/resty.v1"
-
+	"gopkg.in/resty.v1"
 	//"github.com/Hyperpilotio/snap-plugin-collector-k8sconntrack/pkg/logger"
 )
 
-const (
+var (
 	Tables = [...]string{"filter", "nat", "mangle", "raw"}
 )
 
@@ -74,7 +73,7 @@ func (con *Conntrack) GetIptables(tables []string) ([]Table, error) {
 	return t, nil
 }
 
-func (con *Conntrack) ListChains() (*map[string]string, error) {
+func (con *Conntrack) ListChains() (*map[string][]string, error) {
 	resp, err := resty.R().Get(fmt.Sprintf("http://%s/iptables/chains", con.Host))
 	if err != nil {
 		//FIXME appropreate log level
