@@ -41,6 +41,7 @@ type Table struct {
 	Chains []Chain `json:"Chains"`
 }
 
+// FIXME should let api server return all iptables instead of querying particular tables
 func (con *Conntrack) GetIptables(tables []string) ([]Table, error) {
 	var endpoint string
 	if len(tables) < 1 {

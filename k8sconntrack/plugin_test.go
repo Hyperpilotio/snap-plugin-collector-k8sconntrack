@@ -45,7 +45,7 @@ func TestGetMetricTypes(t *testing.T) {
 				for _, m := range mts {
 					ns = append(ns, m.Namespace().String())
 				}
-				So(len(mts), ShouldEqual, 15)
+
 				So(ns, ShouldContain, "/hyperpilot/netfilter/iptables/filter/*/stats")
 				So(ns, ShouldContain, "/hyperpilot/netfilter/iptables/nat/*/stats")
 				So(ns, ShouldContain, "/hyperpilot/netfilter/iptables/mangle/*/stats")
