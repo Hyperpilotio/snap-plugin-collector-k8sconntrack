@@ -97,8 +97,8 @@ func (c *ctCollector) GetConfigPolicy() (*cpolicy.ConfigPolicy, error) {
 	return cp, nil
 }
 
-func (c *ctCollector) CollectMetrics(mts []plugin.MetricType) ([]plugin.MetricType, error) {
-}
+// func (c *ctCollector) CollectMetrics(mts []plugin.MetricType) ([]plugin.MetricType, error) {
+// }
 
 // NewDfCollector creates new instance of plugin and returns pointer to initialized object.
 func NewCtCollector() *ctCollector {
