@@ -11,6 +11,9 @@ import:
   - core
 - package: gopkg.in/resty.v1
   version: ^1.0.0
+- package: github.com/intelsdi-x/snap-plugin-lib-go
+  subpackages:
+  - v1/plugin
 testImport:
 - package: github.com/smartystreets/goconvey
   subpackages:

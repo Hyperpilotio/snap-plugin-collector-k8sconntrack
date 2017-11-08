@@ -27,7 +27,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	"github.com/intelsdi-x/snap/control/plugin"
+	"github.com/intelsdi-x/snap-plugin-lib-go/v1/plugin"
 	"github.com/intelsdi-x/snap/control/plugin/cpolicy"
 	"github.com/intelsdi-x/snap/core"
 )
@@ -64,6 +64,11 @@ var (
 // GetMetricTypes returns list of available metric types
 // It returns error in case retrieval was not successful
 func (c *ctCollector) GetMetricTypes(cfg plugin.ConfigType) ([]plugin.MetricType, error) {
+	if !c.initialized {
+		if err := c.init(cfg); err != nil {
+			return nil, err
+		}
+	}
 	mts := []plugin.MetricType{}
 	iptablesMetrics, err := c.conntrack.ListChains()
 	if err == nil {
@@ -100,22 +105,36 @@ func (c *ctCollector) GetConfigPolicy() (*cpolicy.ConfigPolicy, error) {
 	cp := cpolicy.New()
 	node := cpolicy.NewPolicyNode()
 	cp.Add([]string{nsVendor, nsClass, PluginName}, node)
+	rule1, _ := cpolicy.NewStringRule("host", false, "localhost:3000")
+	node.Add(rule1)
 	return cp, nil
 }
 
 // func (c *ctCollector) CollectMetrics(mts []plugin.MetricType) ([]plugin.MetricType, error) {
 // }
 
+func (c *ctCollector) init(cfg plugin.Config) error {
+	if c.initialized {
+		return nil
+	}
+
+	host, err := cfg.GetString("host")
+	if err != nil {
+		return err
+	}
+	c.conntrack = NewConntrack(host)
+
+	return nil
+}
+
 // NewDfCollector creates new instance of plugin and returns pointer to initialized object.
 func NewCtCollector() *ctCollector {
 	logger := log.New()
 	imutex := new(sync.Mutex)
 	// FIXME should not specify address
-	conntrack := NewConntrack("localhost:3000")
 	return &ctCollector{
-		logger:    logger,
-		mutex:     imutex,
-		conntrack: conntrack,
+		logger: logger,
+		mutex:  imutex,
 	}
 }
 
@@ -133,7 +152,8 @@ func Meta() *plugin.PluginMeta {
 }
 
 type ctCollector struct {
-	mutex     *sync.Mutex
-	logger    *log.Logger
-	conntrack *Conntrack
+	mutex       *sync.Mutex
+	logger      *log.Logger
+	conntrack   *Conntrack
+	initialized bool
 }

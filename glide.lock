@@ -1,8 +1,16 @@
-hash: 91c7f7142568e3867e7a1d1fe25c31969140f32fbf830e131a71c84108105997
-updated: 2017-11-08T20:40:49.266767132+08:00
+hash: bdb22d6513a9b1e1050ae08959f082e1dc9fdf999e42f630b7bafd511f5e76dd
+updated: 2017-11-09T01:16:04.049248907+08:00
 imports:
 - name: github.com/asaskevich/govalidator
   version: 9699ab6b38bee2e02cd3fe8b99ecf67665395c96
+- name: github.com/golang/protobuf
+  version: 888eb0692c857ec880338addf316bd662d5e630e
+  subpackages:
+  - proto
+  - ptypes
+  - ptypes/any
+  - ptypes/duration
+  - ptypes/timestamp
 - name: github.com/intelsdi-x/snap
   version: 79e1dd457d77c985491c2f4746cbc425fb3dc2dd
   subpackages:
@@ -19,24 +27,70 @@ imports:
   - pkg/schedule
   - pkg/stringutils
   - scheduler/wmap
+- name: github.com/intelsdi-x/snap-plugin-lib-go
+  version: 69934c200c23811291535a804852ff2231bf85f0
+  subpackages:
+  - v1/plugin
+  - v1/plugin/rpc
 - name: github.com/intelsdi-x/snap-plugin-utilities
   version: 53c6d26990688f3f277511f5501518167f4cb798
   subpackages:
   - config
+- name: github.com/julienschmidt/httprouter
+  version: 8c199fb6259ffc1af525cc3ad52ee60ba8359669
 - name: github.com/rifflock/lfshook
   version: 3bcf86f879c771238f8a67832a1af71308801a47
 - name: github.com/robfig/cron
   version: 32d9c273155a0506d27cf73dd1246e86a470997e
 - name: github.com/sirupsen/logrus
   version: be52937128b38f1d99787bb476c789e2af1147f1
+- name: github.com/urfave/cli
+  version: cfb38830724cc34fedffe9a2a29fb54fa9169cd1
 - name: golang.org/x/net
   version: 01c190206fbdffa42f334f4b2bf2220f50e64920
   subpackages:
+  - context
+  - http2
+  - http2/hpack
+  - idna
+  - internal/timeseries
+  - lex/httplex
   - publicsuffix
+  - trace
 - name: golang.org/x/sys
   version: d4266bc12aae0b4128952c889b769442fce5d2f1
   subpackages:
   - unix
+- name: golang.org/x/text
+  version: 88f656faf3f37f690df1a32515b479415e1a6769
+  subpackages:
+  - secure/bidirule
+  - transform
+  - unicode/bidi
+  - unicode/norm
+- name: google.golang.org/genproto
+  version: 11c7f9e547da6db876260ce49ea7536985904c9b
+  subpackages:
+  - googleapis/rpc/status
+- name: google.golang.org/grpc
+  version: 5ffe3083946d5603a0578721101dc8165b1d5b5f
+  subpackages:
+  - balancer
+  - codes
+  - connectivity
+  - credentials
+  - grpclb/grpc_lb_v1/messages
+  - grpclog
+  - internal
+  - keepalive
+  - metadata
+  - naming
+  - peer
+  - resolver
+  - stats
+  - status
+  - tap
+  - transport
 - name: gopkg.in/resty.v1
   version: 9ac9c42358f7c3c69ac9f8610e8790d7c338e85d
 - name: gopkg.in/yaml.v2
