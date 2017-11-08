@@ -5,6 +5,9 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+
+    "gopkg.in/resty.v1"
+
 	//"github.com/Hyperpilotio/snap-plugin-collector-k8sconntrack/pkg/logger"
 )
 
