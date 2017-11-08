@@ -63,24 +63,24 @@ var (
 
 // GetMetricTypes returns list of available metric types
 // It returns error in case retrieval was not successful
-func (c *ctCollector) GetMetricTypes(cfg plugin.ConfigType) ([]plugin.MetricType, error) {
+func (c *ctCollector) GetMetricTypes(cfg plugin.Config) ([]plugin.Metric, error) {
 	if !c.initialized {
 		if err := c.init(cfg); err != nil {
 			return nil, err
 		}
 	}
-	mts := []plugin.MetricType{}
+	mts := []plugin.Metric{}
 	iptablesMetrics, err := c.conntrack.ListChains()
 	if err == nil {
 		for table, chains := range *iptablesMetrics {
 			for _, chain := range chains {
-				mts = append(mts, plugin.MetricType{
-					Namespace_: core.NewNamespace(iptablesNamespacePrefix...).
+				mts = append(mts, plugin.Metric{
+					Namespace: core.NewNamespace(iptablesNamespacePrefix...).
 						AddStaticElement(table).
 						AddDynamicElement(chain, "name of chain").
 						AddStaticElement("stats"),
-					Description_: fmt.Sprintf("dynamic iptables metric: %s table %s chain", table, chain),
-					Version_:     Version,
+					Description: fmt.Sprintf("dynamic iptables metric: %s table %s chain", table, chain),
+					Version:     Version,
 				})
 			}
 		}
@@ -89,11 +89,11 @@ func (c *ctCollector) GetMetricTypes(cfg plugin.ConfigType) ([]plugin.MetricType
 	}
 
 	for _, kind := range conntrackMetrics {
-		mts = append(mts, plugin.MetricType{
-			Namespace_: core.NewNamespace(conntrackNamespacePrefix...).
+		mts = append(mts, plugin.Metric{
+			Namespace: core.NewNamespace(conntrackNamespacePrefix...).
 				AddStaticElement(kind),
-			Description_: "dynamic conntrack metric: " + kind,
-			Version_:     Version,
+			Description: "dynamic conntrack metric: " + kind,
+			Version:     Version,
 		})
 	}
 	return mts, nil
@@ -136,19 +136,6 @@ func NewCtCollector() *ctCollector {
 		logger: logger,
 		mutex:  imutex,
 	}
-}
-
-// Meta returns plugin's metadata
-func Meta() *plugin.PluginMeta {
-	return plugin.NewPluginMeta(
-		PluginName,
-		Version,
-		plugin.CollectorPluginType,
-		[]string{plugin.SnapGOBContentType},
-		[]string{plugin.SnapGOBContentType},
-		plugin.RoutingStrategy(plugin.StickyRouting),
-		plugin.ConcurrencyCount(1),
-	)
 }
 
 type ctCollector struct {
