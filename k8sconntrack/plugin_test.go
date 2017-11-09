@@ -99,8 +99,6 @@ func TestCollectMetrics(t *testing.T) {
 				}
 
 				So(ns, ShouldContain, "/hyperpilot/netfilter/iptables/filter/output/stats")
-				// So(ns, ShouldContain, "/hyperpilot/netfilter/conntrack/SERVICE_ID/bytes")
-				// So(ns, ShouldContain, "/hyperpilot/netfilter/conntrack/packets")
 			})
 
 			Convey("When values for specified metrics are requested", func() {
