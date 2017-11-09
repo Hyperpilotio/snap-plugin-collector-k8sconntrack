@@ -182,7 +182,7 @@ func (c *ctCollector) CollectMetrics(mts []plugin.MetricType) ([]plugin.MetricTy
 					return nil, fmt.Errorf("Namespace should contain wildcard")
 				}
 				if table, ok := iptablesMetrics[namespace[3].Value]; ok {
-					ns := make([]core.NamespaceElement, len(namespace))
+					ns := make([]core.NamespaceElement, 6)
 					copy(ns, namespace)
 					ns[3].Name = "table"
 					ns[3].Value = table.Name
@@ -234,7 +234,7 @@ func (c *ctCollector) CollectMetrics(mts []plugin.MetricType) ([]plugin.MetricTy
 				} else if namespace[3].Value != "*" && namespace[4].Value == "*" {
 					if table, ok := iptablesMetrics[namespace[3].Value]; ok {
 						// using namespace /hyperpilot/netfilter/iptables/<table>/*/stats
-						ns := make([]core.NamespaceElement, len(namespace))
+						ns := make([]core.NamespaceElement, 6)
 						copy(ns, namespace)
 						ns[3].Name = "table"
 						ns[3].Value = table.Name
@@ -259,7 +259,7 @@ func (c *ctCollector) CollectMetrics(mts []plugin.MetricType) ([]plugin.MetricTy
 				} else if namespace[3].Value != "*" && namespace[4].Value != "*" {
 					// using namespace /hyperpilot/netfilter/iptables/<table>/<chain>/stats
 					if table, ok := iptablesMetrics[namespace[3].Value]; ok {
-						ns := make([]core.NamespaceElement, len(namespace))
+						ns := make([]core.NamespaceElement, 6)
 						copy(ns, namespace)
 						ns[3].Name = "table"
 						ns[3].Value = table.Name

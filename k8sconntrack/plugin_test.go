@@ -104,28 +104,49 @@ func TestCollectMetrics(t *testing.T) {
 			})
 
 			Convey("When values for specified metrics are requested", func() {
-				testSet := []core.Namespace{
-					// len == 4
-					core.NewNamespace("hyperpilot", "netfilter", "iptables", "*"),
-					// len == 5
-					core.NewNamespace("hyperpilot", "netfilter", "iptables", "*", "*"),
-					core.NewNamespace("hyperpilot", "netfilter", "iptables", "filter", "*"),
-					// len == 6
-					core.NewNamespace("hyperpilot", "netfilter", "iptables", "*", "*", "stats"),
-					core.NewNamespace("hyperpilot", "netfilter", "iptables", "filter", "*", "stats"),
-					core.NewNamespace("hyperpilot", "netfilter", "iptables", "filter", "output", "stats"),
+				type testCase struct {
+					Description string
+					Value       interface{}
+				}
+				testSet := []testCase{
+					testCase{
+						Description: "len == 4",
+						Value:       core.NewNamespace("hyperpilot", "netfilter", "iptables", "*"),
+					},
+					testCase{
+						Description: "len == 5, with two wildcard fields",
+						Value:       core.NewNamespace("hyperpilot", "netfilter", "iptables", "*", "*"),
+					},
+					testCase{
+						Description: "len == 5, with one wildcard filed",
+						Value:       core.NewNamespace("hyperpilot", "netfilter", "iptables", "filter", "*"),
+					},
+					testCase{
+						Description: "len == 6, with two wildcard fileds",
+						Value:       core.NewNamespace("hyperpilot", "netfilter", "iptables", "*", "*", "stats"),
+					},
+					testCase{
+						Description: "len == 6, with one wildcard filed",
+						Value:       core.NewNamespace("hyperpilot", "netfilter", "iptables", "filter", "*", "stats"),
+					},
+					testCase{
+						Description: "len == 6, with zero wildcard fileds",
+						Value:       core.NewNamespace("hyperpilot", "netfilter", "iptables", "filter", "output", "stats"),
+					},
 				}
 
 				for _, val := range testSet {
 					m := plugin.MetricType{
-						Namespace_: val,
+						Namespace_: val.Value.(core.Namespace),
 						Config_:    cfg.ConfigDataNode,
 					}
 					metricTypes := []plugin.MetricType{m}
 					_, err := ct.CollectMetrics(metricTypes)
 
-					Convey("Then no error should be reported", func() {
-						So(err, ShouldBeNil)
+					Convey(val.Description, func() {
+						Convey("Then no error should be reported", func() {
+							So(err, ShouldBeNil)
+						})
 					})
 				}
 			})
