@@ -3,10 +3,11 @@
 ## Collected Metrics
 This plugin has the ability to gather the following metrics:
 
+tag: source="198.198.198.198"
 
 Namespace | Data Type | Description
 ----------|-----------|-----------------------
-/hyperpilot/netfilter/iptables/filter/\<chain\>//stats| string | a rule of iptables
+/hyperpilot/netfilter/iptables/filter/\<chain\>/stats| string | a rule of iptables
 /hyperpilot/netfilter/iptables/nat/\<chain\>/stats| string | a rule of iptables
 /hyperpilot/netfilter/iptables/mangle/\<chain\>/stats| string | a rule of iptables
 /hyperpilot/netfilter/iptables/raw/\<chain\>/stats| string | a rule of iptables

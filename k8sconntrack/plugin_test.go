@@ -99,9 +99,37 @@ func TestCollectMetrics(t *testing.T) {
 				}
 
 				So(ns, ShouldContain, "/hyperpilot/netfilter/iptables/filter/output/stats")
-				So(ns, ShouldContain, "/hyperpilot/netfilter/conntrack/bytes")
-				So(ns, ShouldContain, "/hyperpilot/netfilter/conntrack/packets")
+				// So(ns, ShouldContain, "/hyperpilot/netfilter/conntrack/SERVICE_ID/bytes")
+				// So(ns, ShouldContain, "/hyperpilot/netfilter/conntrack/packets")
+			})
+
+			Convey("When values for specified metrics are requested", func() {
+				testSet := []core.Namespace{
+					// len == 4
+					core.NewNamespace("hyperpilot", "netfilter", "iptables", "*"),
+					// len == 5
+					core.NewNamespace("hyperpilot", "netfilter", "iptables", "*", "*"),
+					core.NewNamespace("hyperpilot", "netfilter", "iptables", "filter", "*"),
+					// len == 6
+					core.NewNamespace("hyperpilot", "netfilter", "iptables", "*", "*", "stats"),
+					core.NewNamespace("hyperpilot", "netfilter", "iptables", "filter", "*", "stats"),
+					core.NewNamespace("hyperpilot", "netfilter", "iptables", "filter", "output", "stats"),
+				}
+
+				for _, val := range testSet {
+					m := plugin.MetricType{
+						Namespace_: val,
+						Config_:    cfg.ConfigDataNode,
+					}
+					metricTypes := []plugin.MetricType{m}
+					_, err := ct.CollectMetrics(metricTypes)
+
+					Convey("Then no error should be reported", func() {
+						So(err, ShouldBeNil)
+					})
+				}
 			})
 		})
 	})
+
 }
