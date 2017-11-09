@@ -23,7 +23,9 @@ package k8sconntrack
 
 import (
 	"fmt"
+	"strings"
 	"sync"
+	"time"
 
 	"github.com/intelsdi-x/snap-plugin-utilities/config"
 	"github.com/intelsdi-x/snap/control/plugin"
@@ -48,12 +50,12 @@ var (
 	namespacePrefix = []string{nsVendor, nsClass}
 
 	iptablesNamespacePrefix = append(namespacePrefix, "iptables")
-	iptablesMetrics         = map[string][]string{
-		"filter": []string{"input", "output", "forward"},
-		"nat":    []string{"prerouting", "postrouting", "output"},
-		"mangle": []string{"prerouting", "output", "forward", "input", "postrouting"},
-		"raw":    []string{"prerouting", "output"},
-	}
+	// iptablesMetrics         = map[string][]string{
+	// 	"filter": []string{"input", "output", "forward"},
+	// 	"nat":    []string{"prerouting", "postrouting", "output"},
+	// 	"mangle": []string{"prerouting", "output", "forward", "input", "postrouting"},
+	// 	"raw":    []string{"prerouting", "output"},
+	// }
 
 	conntrackNamespacePrefix = append(namespacePrefix, "conntrack")
 	conntrackMetrics         = []string{
@@ -72,6 +74,8 @@ func (c *ctCollector) GetMetricTypes(cfg plugin.ConfigType) ([]plugin.MetricType
 	}
 
 	mts := []plugin.MetricType{}
+
+	// Iptables stats
 	iptablesMetrics, err := c.conntrack.ListChains()
 	if err == nil {
 		for table, chains := range *iptablesMetrics {
@@ -90,6 +94,7 @@ func (c *ctCollector) GetMetricTypes(cfg plugin.ConfigType) ([]plugin.MetricType
 		log.Errorf("Unable to retrieve chains of iptables from k8sconntrack: %s", err.Error())
 	}
 
+	// Conntrack stats
 	for _, kind := range conntrackMetrics {
 		mts = append(mts, plugin.MetricType{
 			Namespace_: core.NewNamespace(conntrackNamespacePrefix...).
@@ -122,6 +127,58 @@ func (c *ctCollector) CollectMetrics(mts []plugin.MetricType) ([]plugin.MetricTy
 	}
 
 	metrics := []plugin.MetricType{}
+
+	iptablesMetrics, err := c.conntrack.GetIptables()
+	if err != nil {
+		log.Warnf("%s", err.Error())
+	}
+
+	cMetrics, err := c.conntrack.GetTransactions()
+	if err != nil {
+		log.Warnf("%s", err.Error())
+	}
+
+	for _, metricType := range mts {
+		namespace := metricType.Namespace()
+		switch namespace[2].Value {
+		case "iptables":
+			// FIXME if use selector * wildcard, for example
+			if table, ok := iptablesMetrics[namespace[3].Value]; ok {
+				ns := make([]core.NamespaceElement, len(namespace))
+				copy(ns, namespace)
+				for _, chain := range table.Chains {
+					ns[3].Name = "table"
+					ns[3].Value = table.Name
+					for _, data := range chain.Data {
+						ns[4].Name = "chain"
+						ns[4].Value = strings.ToLower(chain.Name)
+
+						newMetric := plugin.MetricType{
+							Timestamp_: time.Now(),
+							Namespace_: ns,
+							Data_:      strings.Join(data, " "),
+						}
+
+						metrics = append(metrics, newMetric)
+					}
+				}
+			}
+		case "conntrack":
+			for _, transaction := range cMetrics {
+				ns := make([]core.NamespaceElement, len(namespace))
+				copy(ns, namespace)
+				ns[3].Name = "service_id"
+				ns[3].Value = transaction.ServiceID
+				newMetric := plugin.MetricType{
+					Timestamp_: time.Now(),
+					Namespace_: ns,
+					Data_:      transaction.EndpointAbs,
+				}
+
+				metrics = append(metrics, newMetric)
+			}
+		}
+	}
 	return metrics, nil
 }
 
@@ -131,7 +188,6 @@ func (c *ctCollector) init(cfg interface{}) error {
 
 	host, err := config.GetConfigItem(cfg, "host")
 	if err != nil {
-		log.Errorln("host: ", host)
 		return err
 	}
 

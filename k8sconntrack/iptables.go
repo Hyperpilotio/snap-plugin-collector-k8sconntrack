@@ -2,9 +2,7 @@ package k8sconntrack
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
-	"strings"
 
 	"github.com/Hyperpilotio/snap-plugin-collector-k8sconntrack/pkg/log"
 	"gopkg.in/resty.v1"
@@ -42,14 +40,8 @@ type Table struct {
 }
 
 // FIXME should let api server return all iptables instead of querying particular tables
-func (con *Conntrack) GetIptables(tables []string) ([]Table, error) {
-	var endpoint string
-	if len(tables) < 1 {
-		return []Table{}, errors.New("tables are not specified")
-	}
-
-	endpoint = fmt.Sprintf("http://%s/iptables?Table=%s",
-		con.Host, strings.Join(tables, "&Table="))
+func (con *Conntrack) GetIptables() (map[string]Table, error) {
+	endpoint := fmt.Sprintf("http://%s/iptables", con.Host)
 	resp, err := resty.R().Get(endpoint)
 	if err != nil {
 		msg := fmt.Errorf("Unable to get iptables stats from k8sconntrack: %s", err.Error())
@@ -59,14 +51,14 @@ func (con *Conntrack) GetIptables(tables []string) ([]Table, error) {
 
 	}
 
-	var t []Table
-	err = json.Unmarshal(resp.Body(), &t)
+	var metrics map[string]Table
+	err = json.Unmarshal(resp.Body(), &metrics)
 	if err != nil {
 		log.Errorf("Unable to parse body of response: err: %s body: %s", err.Error(), resp.String())
 		return nil, err
 	}
 
-	return t, nil
+	return metrics, nil
 }
 
 func (con *Conntrack) ListChains() (*map[string][]string, error) {

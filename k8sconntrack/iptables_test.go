@@ -10,9 +10,9 @@ func TestGetIptables(t *testing.T) {
 	Convey("Configure a conntrack client", t, func() {
 		c := NewConntrack("localhost:3000")
 		Convey("Should be able to derive nat table", func() {
-			table, err := c.GetIptables([]string{"filter"})
+			metricsMap, err := c.GetIptables()
 			So(err, ShouldEqual, nil)
-			So(table, ShouldNotEqual, nil)
+			So(len(metricsMap), ShouldNotEqual, 0)
 		})
 	})
 }

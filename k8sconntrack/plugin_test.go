@@ -22,12 +22,11 @@ package k8sconntrack
 import (
 	"testing"
 
+	"github.com/intelsdi-x/snap/core"
 	"github.com/intelsdi-x/snap/core/cdata"
 	"github.com/intelsdi-x/snap/core/ctypes"
 
 	. "github.com/smartystreets/goconvey/convey"
-	// "github.com/stretchr/testify/mock"
-	// "github.com/stretchr/testify/suite"
 
 	"github.com/intelsdi-x/snap/control/plugin"
 )
@@ -59,6 +58,47 @@ func TestGetMetricTypes(t *testing.T) {
 				So(ns, ShouldContain, "/hyperpilot/netfilter/iptables/mangle/*/stats")
 				So(ns, ShouldContain, "/hyperpilot/netfilter/iptables/raw/*/stats")
 
+				So(ns, ShouldContain, "/hyperpilot/netfilter/conntrack/bytes")
+				So(ns, ShouldContain, "/hyperpilot/netfilter/conntrack/packets")
+			})
+		})
+	})
+}
+
+func TestCollectMetrics(t *testing.T) {
+	Convey("Given a set metric types", t, func() {
+		ct := NewCtCollector()
+		cfg := func() plugin.ConfigType {
+			node := cdata.NewNode()
+			node.AddItem("host", ctypes.ConfigValueStr{Value: "localhost:3000"})
+			return plugin.ConfigType{ConfigDataNode: node}
+		}()
+		m1 := plugin.MetricType{
+			Namespace_: core.NewNamespace("hyperpilot", "netfilter", "iptables", "filter", "*", "stats"),
+			Config_:    cfg.ConfigDataNode}
+		m2 := plugin.MetricType{
+			Namespace_: core.NewNamespace("hyperpilot", "netfilter", "conntrack", "bytes"),
+			Config_:    cfg.ConfigDataNode}
+		m3 := plugin.MetricType{
+			Namespace_: core.NewNamespace("hyperpilot", "netfilter", "conntrack", "packets"),
+			Config_:    cfg.ConfigDataNode}
+
+		metricTypes := []plugin.MetricType{m1, m2, m3}
+
+		Convey("When values for given metrics are requested", func() {
+			mts, err := ct.CollectMetrics(metricTypes)
+
+			Convey("Then no error should be reported", func() {
+				So(err, ShouldBeNil)
+			})
+
+			Convey("Then proper metrics are returned", func() {
+				ns := []string{}
+				for _, m := range mts {
+					ns = append(ns, m.Namespace().String())
+				}
+
+				So(ns, ShouldContain, "/hyperpilot/netfilter/iptables/filter/output/stats")
 				So(ns, ShouldContain, "/hyperpilot/netfilter/conntrack/bytes")
 				So(ns, ShouldContain, "/hyperpilot/netfilter/conntrack/packets")
 			})
