@@ -133,6 +133,18 @@ func TestCollectMetrics(t *testing.T) {
 						Description: "[iptables] len == 6, with zero wildcard fields",
 						Value:       core.NewNamespace("hyperpilot", "netfilter", "iptables", "filter", "output", "stats"),
 					},
+					testCase{
+						Description: "[conntrack] len == 4, with one wildcard field",
+						Value:       core.NewNamespace("hyperpilot", "netfilter", "conntrack", "*"),
+					},
+					testCase{
+						Description: "[conntrack] len == 5, with one wildcard field",
+						Value:       core.NewNamespace("hyperpilot", "netfilter", "conntrack", "*", "bytes"),
+					},
+					testCase{
+						Description: "[conntrack] len == 5, with two wildcard fields",
+						Value:       core.NewNamespace("hyperpilot", "netfilter", "conntrack", "*", "*"),
+					},
 				}
 
 				for _, val := range testSet {
