@@ -110,27 +110,27 @@ func TestCollectMetrics(t *testing.T) {
 				}
 				testSet := []testCase{
 					testCase{
-						Description: "len == 4",
+						Description: "[iptables] len == 4",
 						Value:       core.NewNamespace("hyperpilot", "netfilter", "iptables", "*"),
 					},
 					testCase{
-						Description: "len == 5, with two wildcard fields",
+						Description: "[iptables] len == 5, with two wildcard fields",
 						Value:       core.NewNamespace("hyperpilot", "netfilter", "iptables", "*", "*"),
 					},
 					testCase{
-						Description: "len == 5, with one wildcard filed",
+						Description: "[iptables] len == 5, with one wildcard filed",
 						Value:       core.NewNamespace("hyperpilot", "netfilter", "iptables", "filter", "*"),
 					},
 					testCase{
-						Description: "len == 6, with two wildcard fileds",
+						Description: "[iptables] len == 6, with two wildcard fields",
 						Value:       core.NewNamespace("hyperpilot", "netfilter", "iptables", "*", "*", "stats"),
 					},
 					testCase{
-						Description: "len == 6, with one wildcard filed",
+						Description: "[iptables] len == 6, with one wildcard field",
 						Value:       core.NewNamespace("hyperpilot", "netfilter", "iptables", "filter", "*", "stats"),
 					},
 					testCase{
-						Description: "len == 6, with zero wildcard fileds",
+						Description: "[iptables] len == 6, with zero wildcard fields",
 						Value:       core.NewNamespace("hyperpilot", "netfilter", "iptables", "filter", "output", "stats"),
 					},
 				}
