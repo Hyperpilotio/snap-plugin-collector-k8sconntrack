@@ -77,10 +77,10 @@ func TestCollectMetrics(t *testing.T) {
 			Namespace_: core.NewNamespace("hyperpilot", "netfilter", "iptables", "filter", "*", "stats"),
 			Config_:    cfg.ConfigDataNode}
 		m2 := plugin.MetricType{
-			Namespace_: core.NewNamespace("hyperpilot", "netfilter", "conntrack", "bytes"),
+			Namespace_: core.NewNamespace("hyperpilot", "netfilter", "conntrack", "*", "bytes"),
 			Config_:    cfg.ConfigDataNode}
 		m3 := plugin.MetricType{
-			Namespace_: core.NewNamespace("hyperpilot", "netfilter", "conntrack", "packets"),
+			Namespace_: core.NewNamespace("hyperpilot", "netfilter", "conntrack", "*", "packets"),
 			Config_:    cfg.ConfigDataNode}
 
 		metricTypes := []plugin.MetricType{m1, m2, m3}

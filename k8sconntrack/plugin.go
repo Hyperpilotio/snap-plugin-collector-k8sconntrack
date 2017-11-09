@@ -152,8 +152,7 @@ func (c *ctCollector) CollectMetrics(mts []plugin.MetricType) ([]plugin.MetricTy
 					return nil, fmt.Errorf("Namespace should contain wildcard")
 				}
 				for _, table := range iptablesMetrics {
-					// FIXME make a variable here to replace hardcoded `6`
-					ns := make([]core.NamespaceElement, 6)
+					ns := make([]core.NamespaceElement, IptablesMetricLength)
 					copy(ns, namespace)
 
 					ns[5].Name = "stats"
@@ -182,7 +181,7 @@ func (c *ctCollector) CollectMetrics(mts []plugin.MetricType) ([]plugin.MetricTy
 					return nil, fmt.Errorf("Namespace should contain wildcard")
 				}
 				if table, ok := iptablesMetrics[namespace[3].Value]; ok {
-					ns := make([]core.NamespaceElement, 6)
+					ns := make([]core.NamespaceElement, IptablesMetricLength)
 					copy(ns, namespace)
 					ns[3].Name = "table"
 					ns[3].Value = table.Name
@@ -208,8 +207,7 @@ func (c *ctCollector) CollectMetrics(mts []plugin.MetricType) ([]plugin.MetricTy
 				if namespace[3].Value == "*" && namespace[4].Value == "*" {
 					// using namespace /hyperpilot/netfilter/iptables/*/*/stats
 					for _, table := range iptablesMetrics {
-						// FIXME make a variable here to replace hardcoded `6`
-						ns := make([]core.NamespaceElement, 6)
+						ns := make([]core.NamespaceElement, IptablesMetricLength)
 						copy(ns, namespace)
 						ns[3].Name = "table"
 						ns[3].Value = table.Name
@@ -234,7 +232,7 @@ func (c *ctCollector) CollectMetrics(mts []plugin.MetricType) ([]plugin.MetricTy
 				} else if namespace[3].Value != "*" && namespace[4].Value == "*" {
 					if table, ok := iptablesMetrics[namespace[3].Value]; ok {
 						// using namespace /hyperpilot/netfilter/iptables/<table>/*/stats
-						ns := make([]core.NamespaceElement, 6)
+						ns := make([]core.NamespaceElement, IptablesMetricLength)
 						copy(ns, namespace)
 						ns[3].Name = "table"
 						ns[3].Value = table.Name
@@ -259,7 +257,7 @@ func (c *ctCollector) CollectMetrics(mts []plugin.MetricType) ([]plugin.MetricTy
 				} else if namespace[3].Value != "*" && namespace[4].Value != "*" {
 					// using namespace /hyperpilot/netfilter/iptables/<table>/<chain>/stats
 					if table, ok := iptablesMetrics[namespace[3].Value]; ok {
-						ns := make([]core.NamespaceElement, 6)
+						ns := make([]core.NamespaceElement, IptablesMetricLength)
 						copy(ns, namespace)
 						ns[3].Name = "table"
 						ns[3].Value = table.Name
@@ -286,18 +284,58 @@ func (c *ctCollector) CollectMetrics(mts []plugin.MetricType) ([]plugin.MetricTy
 				}
 			}
 		case "conntrack":
-			for _, transaction := range cMetrics {
-				ns := make([]core.NamespaceElement, len(namespace))
-				copy(ns, namespace)
-				ns[3].Name = "service_id"
-				ns[3].Value = transaction.ServiceID
-				newMetric := plugin.MetricType{
-					Timestamp_: time.Now(),
-					Namespace_: ns,
-					Data_:      transaction.EndpointAbs,
+			if lns == 4 {
+				if namespace[lns-1].Value != "*" {
+					return nil, fmt.Errorf("Namespace should contain wildcard")
 				}
+				// use namespace /hyperpilot/netfilter/conntrack/*
+				// FIXME 還沒有實作選擇 bytes or packets 在這邊 還有在 k8sconntrack
+				for _, transaction := range cMetrics {
+					ns := make([]core.NamespaceElement, ConntrackMetricLength)
+					copy(ns, namespace)
+					ns[3].Name = "service_id"
+					ns[3].Value = transaction.ServiceID
+					newMetric := plugin.MetricType{
+						Timestamp_: time.Now(),
+						Namespace_: ns,
+						Data_:      transaction.EndpointAbs,
+					}
 
-				metrics = append(metrics, newMetric)
+					metrics = append(metrics, newMetric)
+				}
+			} else if lns == 5 {
+				if namespace[3].Value == "*" && namespace[4].Value == "*" {
+					// use namespace /hyperpilot/netfilter/conntrack/*/*
+					for _, transaction := range cMetrics {
+						ns := make([]core.NamespaceElement, 5)
+						copy(ns, namespace)
+						ns[3].Name = "service_id"
+						ns[3].Value = transaction.ServiceID
+						newMetric := plugin.MetricType{
+							Timestamp_: time.Now(),
+							Namespace_: ns,
+							Data_:      transaction.EndpointAbs,
+						}
+
+						metrics = append(metrics, newMetric)
+					}
+				} else if namespace[3].Value == "*" {
+					// use namespace /hyperpilot/netfilter/conntrack/*/bytes
+					for _, transaction := range cMetrics {
+						ns := make([]core.NamespaceElement, ConntrackMetricLength)
+						copy(ns, namespace)
+						ns[3].Name = "service_id"
+						ns[3].Value = transaction.ServiceID
+						ns[4].Name = "stats"
+						ns[4].Value = namespace[4].Value
+						newMetric := plugin.MetricType{
+							Timestamp_: time.Now(),
+							Namespace_: ns,
+							Data_:      transaction.EndpointAbs,
+						}
+						metrics = append(metrics, newMetric)
+					}
+				}
 			}
 		}
 	}
