@@ -30,13 +30,13 @@ ex:[
    ]
 */
 type Chain struct {
-	Name string     `json:"Name"`
-	Data [][]string `json:"Data"`
+	Name string     `json:"name"`
+	Data [][]string `json:"data"`
 }
 
 type Table struct {
-	Name   string  `json:"Name"`
-	Chains []Chain `json:"Chains"`
+	Name   string  `json:"name"`
+	Chains []Chain `json:"chains"`
 }
 
 // FIXME should let api server return all iptables instead of querying particular tables

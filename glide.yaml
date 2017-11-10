@@ -1,6 +1,5 @@
 package: github.com/Hyperpilotio/snap-plugin-collector-k8sconntrack
 import:
-- package: github.com/sirupsen/logrus
 - package: github.com/intelsdi-x/snap-plugin-utilities
   subpackages:
   - config
@@ -9,8 +8,11 @@ import:
   - control/plugin
   - control/plugin/cpolicy
   - core
+  - pkg/stringutils
 - package: gopkg.in/resty.v1
   version: ^1.0.0
+- package: github.com/sirupsen/logrus
+  version: ^1.0.3
 testImport:
 - package: github.com/smartystreets/goconvey
   subpackages:
