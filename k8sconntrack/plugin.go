@@ -1,5 +1,3 @@
-// +build linux
-
 /*
 http://www.apache.org/licenses/LICENSE-2.0.txt
 
@@ -152,53 +150,49 @@ func (c *ctCollector) CollectMetrics(mts []plugin.MetricType) ([]plugin.MetricTy
 					return nil, fmt.Errorf("Namespace should contain wildcard")
 				}
 				for _, table := range iptablesMetrics {
-					ns := make([]core.NamespaceElement, IptablesMetricLength)
-					copy(ns, namespace)
-
-					ns[5].Name = "stats"
-					ns[5].Value = "stats"
-
 					for _, chain := range table.Chains {
-						ns[3].Name = "table"
-						ns[3].Value = table.Name
 						for _, data := range chain.Data {
+							ns := make([]core.NamespaceElement, IptablesMetricLength)
+							copy(ns, namespace)
+							ns[3].Name = "table"
+							ns[3].Value = table.Name
 							ns[4].Name = "chain"
-							ns[4].Value = strings.ToLower(chain.Name)
+							ns[4].Value = chain.Name
+							ns[5].Name = "stats"
+							ns[5].Value = "stats"
 
 							newMetric := plugin.MetricType{
 								Timestamp_: time.Now(),
 								Namespace_: ns,
 								Data_:      strings.Join(data, " "),
 							}
-
 							metrics = append(metrics, newMetric)
 						}
 					}
 				}
+				break
 			} else if lns == 5 {
 				// using namespace /hyperpilot/netfilter/iptables/<table>/*
 				if namespace[4].Value != "*" {
 					return nil, fmt.Errorf("Namespace should contain wildcard")
 				}
 				if table, ok := iptablesMetrics[namespace[3].Value]; ok {
-					ns := make([]core.NamespaceElement, IptablesMetricLength)
-					copy(ns, namespace)
-					ns[3].Name = "table"
-					ns[3].Value = table.Name
-					ns[5].Name = "stats"
-					ns[5].Value = "stats"
-
 					for _, chain := range table.Chains {
 						for _, data := range chain.Data {
+							ns := make([]core.NamespaceElement, IptablesMetricLength)
+							copy(ns, namespace)
+							ns[3].Name = "table"
+							ns[3].Value = table.Name
 							ns[4].Name = "chain"
-							ns[4].Value = strings.ToLower(chain.Name)
+							ns[4].Value = chain.Name
+							ns[5].Name = "stats"
+							ns[5].Value = "stats"
 
 							newMetric := plugin.MetricType{
 								Timestamp_: time.Now(),
 								Namespace_: ns,
 								Data_:      strings.Join(data, " "),
 							}
-
 							metrics = append(metrics, newMetric)
 						}
 					}
@@ -207,17 +201,16 @@ func (c *ctCollector) CollectMetrics(mts []plugin.MetricType) ([]plugin.MetricTy
 				if namespace[3].Value == "*" && namespace[4].Value == "*" {
 					// using namespace /hyperpilot/netfilter/iptables/*/*/stats
 					for _, table := range iptablesMetrics {
-						ns := make([]core.NamespaceElement, IptablesMetricLength)
-						copy(ns, namespace)
-						ns[3].Name = "table"
-						ns[3].Value = table.Name
-						ns[5].Name = "stats"
-						ns[5].Value = "stats"
-
 						for _, chain := range table.Chains {
 							for _, data := range chain.Data {
+								ns := make([]core.NamespaceElement, IptablesMetricLength)
+								copy(ns, namespace)
+								ns[3].Name = "table"
+								ns[3].Value = table.Name
 								ns[4].Name = "chain"
-								ns[4].Value = strings.ToLower(chain.Name)
+								ns[4].Value = chain.Name
+								ns[5].Name = "stats"
+								ns[5].Value = "stats"
 
 								newMetric := plugin.MetricType{
 									Timestamp_: time.Now(),
@@ -229,58 +222,61 @@ func (c *ctCollector) CollectMetrics(mts []plugin.MetricType) ([]plugin.MetricTy
 							}
 						}
 					}
+					break
 				} else if namespace[3].Value != "*" && namespace[4].Value == "*" {
 					if table, ok := iptablesMetrics[namespace[3].Value]; ok {
 						// using namespace /hyperpilot/netfilter/iptables/<table>/*/stats
-						ns := make([]core.NamespaceElement, IptablesMetricLength)
-						copy(ns, namespace)
-						ns[3].Name = "table"
-						ns[3].Value = table.Name
-						ns[5].Name = "stats"
-						ns[5].Value = "stats"
-
 						for _, chain := range table.Chains {
-							for _, data := range chain.Data {
+							if len(chain.Data) == 0 {
+								continue
+							}
+							for _, rule := range chain.Data {
+								ns := make([]core.NamespaceElement, IptablesMetricLength)
+								copy(ns, namespace)
+								ns[3].Name = "table"
+								ns[3].Value = table.Name
 								ns[4].Name = "chain"
-								ns[4].Value = strings.ToLower(chain.Name)
-
+								ns[4].Value = chain.Name
+								ns[5].Name = "stats"
+								ns[5].Value = "stats"
 								newMetric := plugin.MetricType{
 									Timestamp_: time.Now(),
 									Namespace_: ns,
-									Data_:      strings.Join(data, " "),
+									Data_:      strings.Join(rule, " "),
 								}
-
 								metrics = append(metrics, newMetric)
 							}
 						}
+						break
+					} else {
+						return nil, fmt.Errorf("specified metrics are not available: %s", namespace.String())
 					}
 				} else if namespace[3].Value != "*" && namespace[4].Value != "*" {
 					// using namespace /hyperpilot/netfilter/iptables/<table>/<chain>/stats
 					if table, ok := iptablesMetrics[namespace[3].Value]; ok {
-						ns := make([]core.NamespaceElement, IptablesMetricLength)
-						copy(ns, namespace)
-						ns[3].Name = "table"
-						ns[3].Value = table.Name
-						ns[5].Name = "stats"
-						ns[5].Value = "stats"
-
 						for _, chain := range table.Chains {
 							if chain.Name == namespace[4].Value {
-								for _, data := range chain.Data {
-									ns[4].Name = "chain"
-									ns[4].Value = strings.ToLower(chain.Name)
+								ns := make([]core.NamespaceElement, IptablesMetricLength)
+								copy(ns, namespace)
+								ns[3].Name = "table"
+								ns[3].Value = table.Name
+								ns[4].Name = "chain"
+								ns[4].Value = chain.Name
+								ns[5].Name = "stats"
+								ns[5].Value = "stats"
 
+								for _, data := range chain.Data {
 									newMetric := plugin.MetricType{
 										Timestamp_: time.Now(),
 										Namespace_: ns,
 										Data_:      strings.Join(data, " "),
 									}
-
 									metrics = append(metrics, newMetric)
 								}
 							}
 						}
 					}
+					break
 				}
 			}
 		case "conntrack":

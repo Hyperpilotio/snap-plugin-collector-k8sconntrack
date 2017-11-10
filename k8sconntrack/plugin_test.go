@@ -74,7 +74,7 @@ func TestCollectMetrics(t *testing.T) {
 			return plugin.ConfigType{ConfigDataNode: node}
 		}()
 		m1 := plugin.MetricType{
-			Namespace_: core.NewNamespace("hyperpilot", "netfilter", "iptables", "filter", "*", "stats"),
+			Namespace_: core.NewNamespace("hyperpilot", "netfilter", "iptables", "filter", "INPUT", "stats"),
 			Config_:    cfg.ConfigDataNode}
 		m2 := plugin.MetricType{
 			Namespace_: core.NewNamespace("hyperpilot", "netfilter", "conntrack", "*", "bytes"),
@@ -84,6 +84,55 @@ func TestCollectMetrics(t *testing.T) {
 			Config_:    cfg.ConfigDataNode}
 
 		metricTypes := []plugin.MetricType{m1, m2, m3}
+
+		Convey("Metrics are expected to be filtered according to specified types of metrics", func() {
+			Convey("While only iptables with zero wildcard field is requested", func() {
+				m1 := plugin.MetricType{
+					Namespace_: core.NewNamespace("hyperpilot", "netfilter", "iptables", "filter", "INPUT", "stats"),
+					Config_:    cfg.ConfigDataNode}
+				metricTypes := []plugin.MetricType{m1}
+
+				mts, _ := ct.CollectMetrics(metricTypes)
+
+				ns := []string{}
+				for _, m := range mts {
+					ns = append(ns, m.Namespace().String())
+				}
+
+				So(ns, ShouldContain, "/hyperpilot/netfilter/iptables/filter/INPUT/stats")
+				So(ns, ShouldNotContain, "/hyperpilot/netfilter/iptables/filter/KUBE-FIREWALL/stats")
+				So(ns, ShouldNotContain, "/hyperpilot/netfilter/iptables/filter/DOCKER-ISOLATION/stats")
+				So(ns, ShouldNotContain, "/hyperpilot/netfilter/iptables/filter/FORWARD/stats")
+				So(ns, ShouldNotContain, "/hyperpilot/netfilter/iptables/filter/KUBE-METADATA-SERVER/stats")
+				So(ns, ShouldNotContain, "/hyperpilot/netfilter/iptables/filter/KUBE-SERVICES/stats")
+				So(ns, ShouldNotContain, "/hyperpilot/netfilter/iptables/filter/DOCKER/stats")
+			})
+
+			Convey("While only iptables with one wildcard field is requested", func() {
+				m1 := plugin.MetricType{
+					Namespace_: core.NewNamespace("hyperpilot", "netfilter", "iptables", "filter", "*", "stats"),
+					Config_:    cfg.ConfigDataNode}
+				metricTypes := []plugin.MetricType{m1}
+				mts, err := ct.CollectMetrics(metricTypes)
+				So(err, ShouldBeNil)
+
+				ns := []string{}
+				for _, m := range mts {
+					ns = append(ns, m.Namespace().String())
+				}
+
+				So(ns, ShouldContain, "/hyperpilot/netfilter/iptables/filter/INPUT/stats")
+				So(ns, ShouldContain, "/hyperpilot/netfilter/iptables/filter/FORWARD/stats")
+				So(ns, ShouldContain, "/hyperpilot/netfilter/iptables/filter/OUTPUT/stats")
+				So(ns, ShouldContain, "/hyperpilot/netfilter/iptables/filter/DOCKER-ISOLATION/stats")
+				So(ns, ShouldContain, "/hyperpilot/netfilter/iptables/filter/KUBE-FIREWALL/stats")
+
+				So(ns, ShouldNotContain, "/hyperpilot/netfilter/iptables/filter/KUBE-METADATA-SERVER/stats")
+				So(ns, ShouldNotContain, "/hyperpilot/netfilter/iptables/filter/KUBE-SERVICES/stats")
+				So(ns, ShouldNotContain, "/hyperpilot/netfilter/iptables/filter/DOCKER/stats")
+			})
+
+		})
 
 		Convey("When values for given metrics are requested", func() {
 			mts, err := ct.CollectMetrics(metricTypes)
@@ -98,7 +147,13 @@ func TestCollectMetrics(t *testing.T) {
 					ns = append(ns, m.Namespace().String())
 				}
 
-				So(ns, ShouldContain, "/hyperpilot/netfilter/iptables/filter/output/stats")
+				So(ns, ShouldContain, "/hyperpilot/netfilter/iptables/filter/INPUT/stats")
+				So(ns, ShouldNotContain, "/hyperpilot/netfilter/iptables/filter/KUBE-FIREWALL/stats")
+				So(ns, ShouldNotContain, "/hyperpilot/netfilter/iptables/filter/DOCKER-ISOLATION/stats")
+				So(ns, ShouldNotContain, "/hyperpilot/netfilter/iptables/filter/FORWARD/stats")
+				So(ns, ShouldNotContain, "/hyperpilot/netfilter/iptables/filter/KUBE-METADATA-SERVER/stats")
+				So(ns, ShouldNotContain, "/hyperpilot/netfilter/iptables/filter/KUBE-SERVICES/stats")
+				So(ns, ShouldNotContain, "/hyperpilot/netfilter/iptables/filter/DOCKER/stats")
 			})
 
 			Convey("When values for specified metrics are requested", func() {
@@ -129,7 +184,7 @@ func TestCollectMetrics(t *testing.T) {
 					},
 					testCase{
 						Description: "[iptables] len == 6, with zero wildcard fields",
-						Value:       core.NewNamespace("hyperpilot", "netfilter", "iptables", "filter", "output", "stats"),
+						Value:       core.NewNamespace("hyperpilot", "netfilter", "iptables", "filter", "OUTPUT", "stats"),
 					},
 					testCase{
 						Description: "[conntrack] len == 4, with one wildcard field",
